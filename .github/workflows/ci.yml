@@ -9,10 +9,21 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    # continue-on-error evaluating to true only for the experimental combination
+    continue-on-error: ${{ matrix.experimental == true }}
     strategy:
+      # We use fail-fast: false so that one failing combination (e.g., an experimental Node version or OS-specific issue) doesn't cancel the other jobs in the matrix. This gives us full visibility of results across every environment.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         node: [18, 20, 22]
+        include:
+          - os: ubuntu-latest
+            node: 24
+            experimental: true
+          - os: windows-latest
+            node: 24
+            experimental: true
     steps:
       - uses: actions/checkout@v4
       - name: Print environment info for debugging
